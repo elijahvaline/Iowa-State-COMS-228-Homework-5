@@ -274,9 +274,8 @@ public class VideoStore {
 			throws IllegalArgumentException, FilmNotInInventoryException, AllCopiesRentedOutException {
 		
 		Video curr = inventory.findElement(new Video(film, 1));
-		if (curr == null) {
-			
-			throw new FilmNotInInventoryException("Film " + film + " is not in inventry");
+		if (curr == null) {	
+			throw new FilmNotInInventoryException("Film " + film + " is not in inventory");
 		}
 		if (film == null || n <= 0 || film.isEmpty()) {
 			throw new IllegalArgumentException();
@@ -323,32 +322,46 @@ public class VideoStore {
 		int copies = 1;
 		String title = "";
 		String next;
+		int priority = 10;
 		s = new Scanner(f);
 		ArrayList<Video> vids = new ArrayList<Video>();
+		String exceptions = "";
+		
+		int num;
+		String name;
 		
 
 		while (s.hasNextLine()) {
 			
 			nextLine = s.nextLine();
-			sc = new Scanner(nextLine);
-			while (sc.hasNext()) {
-				next = sc.next();
-				if (next.length() == 1) {
-					title += next + " ";
-				}
-				else if (isNum(next.charAt(1)) == false) {
-
-					title += next + " ";
-				} else if (isNum(next.charAt(1)) == true) {
-					copies = Integer.parseInt(next.substring(1, next.length()-1) + "");
-				}
+//			sc = new Scanner(nextLine);
+			title = VideoStore.parseFilmName(nextLine);
+			copies = VideoStore.parseNumCopies(nextLine);
+		
+//				next = sc.next();
+//				if (next.length() == 1) {
+//					title += next + " ";
+//				}
+//				else if (isNum(next.charAt(1)) == false) {
+//
+//					title += next + " ";
+//				} else if (isNum(next.charAt(1)) == true) {
+//					copies = Integer.parseInt(next.substring(1, next.length()-1) + "");
+//				}
+//			}
+//			title = title.substring(0, title.length()-1);
+			try{
+				vids.add(new Video(title, copies));
 			}
-			title = title.substring(0, title.length()-1);
-			vids.add(new Video(title, copies));
+			catch(IllegalArgumentException e) {
+				exceptions += "Film " + title + " has an invalid request" + "\n";
+				priority = 1;
+			}
+			
 //			System.out.println(title + copies);
 			
-			copies = 1;
-			title = "";
+//			copies = 1;
+//			title = "";
 		}
 		
 		for (int i = 0; i < vids.size(); i++) {
@@ -356,17 +369,36 @@ public class VideoStore {
 			videoRent(vids.get(i).getFilm(), vids.get(i).getNumCopies());
 			}
 			catch(IllegalArgumentException e) {
-				throw new IllegalArgumentException();
+				exceptions += e.getMessage() + "\n";
+				priority = 1;
+//				throw new IllegalArgumentException();
 			}
 			catch(FilmNotInInventoryException e) {
-				
-				throw new FilmNotInInventoryException("Film " + vids.get(i).getFilm() + " is not in inventry");
+				exceptions += e.getMessage() + "\n";
+				if (2 < priority) {
+					priority = 2;
+				}
+//				throw new FilmNotInInventoryException("Film " + vids.get(i).getFilm() + " is not in inventry");
 			}
 			catch(AllCopiesRentedOutException e) {
-				
-				throw new AllCopiesRentedOutException("Film " + vids.get(i).getFilm() + " has been rented out");
+				exceptions += e.getMessage() + "\n";
+				if (3 < priority) {
+					priority = 3;
+				}
+//				throw new AllCopiesRentedOutException("Film " + vids.get(i).getFilm() + " has been rented out");
 			}
 			
+
+		}
+		if (exceptions.length() > 0) {
+			switch (priority) {
+			case 1:
+				throw new IllegalArgumentException(exceptions);
+			case 2:
+				throw new FilmNotInInventoryException(exceptions);
+			case 3:
+				throw new AllCopiesRentedOutException(exceptions);
+			}
 		}
 		
 		
@@ -428,6 +460,7 @@ public class VideoStore {
 		int copies = 1;
 		String title = "";
 		String next;
+		String exceptions = "";
 		s = new Scanner(f);
 		ArrayList<Video> vids = new ArrayList<Video>();
 		
@@ -461,13 +494,17 @@ public class VideoStore {
 			videoReturn(vids.get(i).getFilm(), vids.get(i).getNumCopies());
 			}
 			catch(IllegalArgumentException e) {
-				throw new IllegalArgumentException();
+				exceptions += e.getMessage() + "\n";
+//				throw new IllegalArgumentException();
 			}
 			catch(FilmNotInInventoryException e) {
-				
-				throw new FilmNotInInventoryException("Film " + vids.get(i).getFilm() + " is not in inventry");
+				exceptions += e.getMessage() + "\n";
+//				throw new FilmNotInInventoryException("Film " + vids.get(i).getFilm() + " is not in inventry");
 			}
 			
+		}
+		if (exceptions.length() > 0) {
+			throw new IllegalArgumentException(exceptions);
 		}
 	}
 
@@ -592,7 +629,7 @@ public class VideoStore {
 			if (next.length() == 1) {
 				title += next + " ";
 			}
-			else if (isNum(next.charAt(1)) == false) {
+			else if (next.charAt(0) != '(') {
 
 				title += next + " ";
 			}
@@ -615,7 +652,7 @@ public class VideoStore {
 		
 		while (sc.hasNext()) {
 			next = sc.next();
-			if (isNum(next.charAt(1)) == true) {
+			if (next.charAt(0) == '(') {
 				copies = Integer.parseInt(next.substring(1, next.length()-1) + "");
 			}
 		}
