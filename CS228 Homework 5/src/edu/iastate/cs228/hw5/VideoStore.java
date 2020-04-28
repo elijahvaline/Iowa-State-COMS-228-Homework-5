@@ -97,6 +97,7 @@ public class VideoStore {
 	 * @param film
 	 * @return
 	 */
+	@SuppressWarnings({ "unused", "rawtypes" })
 	public Video findVideo(String film) {
 		String curr, prev;
 		Node cur = inventory.root;
@@ -584,6 +585,7 @@ public class VideoStore {
 	public static String parseFilmName(String line) {
 		String next;
 		String title = "";
+		@SuppressWarnings("resource")
 		Scanner sc = new Scanner(line);
 		while (sc.hasNext()) {
 			next = sc.next();
@@ -606,9 +608,9 @@ public class VideoStore {
 	 * @return
 	 */
 	public static int parseNumCopies(String line) {
+		@SuppressWarnings("resource")
 		Scanner sc = new Scanner(line);
 		String next = "";
-		String title = "";
 		int copies = 1;
 		
 		while (sc.hasNext()) {
@@ -626,6 +628,7 @@ public class VideoStore {
 			return false;
 		}
 		try {
+			@SuppressWarnings("unused")
 			int i = Integer.parseInt(c + "");
 		} catch (NumberFormatException nfe) {
 			return false;
