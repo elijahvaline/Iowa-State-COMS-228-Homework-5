@@ -7,8 +7,8 @@ public class test {
 
 	public static void main(String[] args) throws FileNotFoundException, IllegalArgumentException, FilmNotInInventoryException, AllCopiesRentedOutException {
 		VideoStore v = new VideoStore("test1.txt");
-		System.out.println(v.inventory.toString());
-		System.out.println(VideoStore.parseFilmName("Hello There (15)"));
+//		System.out.println(v.inventory.toString());
+//		System.out.println(VideoStore.parseFilmName("Hello There (15)"));
 
 //		v.videoRent("Forrest Gump", 1);
 //		String s = "";
@@ -23,10 +23,10 @@ public class test {
 //		System.out.println(sc.next());
 //		System.out.println(v.inventory.toString());
 //		System.out.println("\n \n \n");
-		
+		v.videoRent("The Godfather", 1);
 
 //		v.bulkImport("test1.txt");
-		System.out.println(v.inventory.toString());
+//		System.out.println(v.inventory.toString());
 		try {
 			v.bulkRent("test2.txt");	
 		}

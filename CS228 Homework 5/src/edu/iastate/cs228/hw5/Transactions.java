@@ -24,6 +24,7 @@ public class Transactions
 	 * @param args
 	 * @throws FileNotFoundException
 	 */
+	@SuppressWarnings("resource")
 	public static void main(String[] args) throws FileNotFoundException
 	{	
 		// TODO 
@@ -31,53 +32,94 @@ public class Transactions
 		// 1. Construct a VideoStore object.
 		// 2. Simulate transactions as in the example given in Section 4 of the 
 		//    the project description. 
-		int numTrans = 1;
+		
 		int state = 1;
+		int num;
 		boolean running = true;
-		String f ;
+		
+		String multi = "";
 		Scanner sc = new Scanner(System.in);
-		
 		VideoStore v = new VideoStore("test1.txt");
-		
-		
-		
+
 		System.out.println("Transactions at a Video Store");
 		System.out.println("keys: 1 (rent)     2 (bulk rent)");
 		System.out.println("      3 (return)   4 (bulk return)");
 		System.out.println("      5 (summary)  6 (exit)" + "\n \n");
 		
-		
-		
 		while(running == true) {
+			multi = "";
 			System.out.print("Transaction: ");
 			state = sc.nextInt();
+		
 			
 			switch (state){
 			case 1:
+				System.out.print("Film to rent: ");
+				multi = sc.nextLine();
+				multi = sc.nextLine();
+				num = VideoStore.parseNumCopies(multi);
+				multi = VideoStore.parseFilmName(multi);
+
+				try {
+				v.videoRent(multi, num);
+				}
+				catch (Exception e) {
+					System.out.println(e.getMessage());
+				}
+				
 				break;
 			case 2: 
+				System.out.print("Video file (rent): ");
+				multi = sc.nextLine();
+				multi = sc.nextLine();
+
+				
+				try {
+					v.bulkRent(multi);
+				}
+				catch(Exception e) {
+					System.out.println(e.getMessage());
+				}
 				break;
 			case 3: 
+				System.out.print("Film to return: ");
+				multi = sc.nextLine();
+				multi = sc.nextLine();
+				num = VideoStore.parseNumCopies(multi);
+				multi = VideoStore.parseFilmName(multi);
+				try {
+					v.videoReturn(multi, num);
+				}
+				catch(Exception e) {
+					
+					System.out.println(e.getMessage());
+				}
 				break;
 			case 4:
+				System.out.println("Video file (return): ");
+				multi = sc.nextLine();
+				multi = sc.nextLine();
+
+				try {
+					v.bulkReturn(multi);
+				}
+				catch(Exception e) {
+					 System.out.println(e.getMessage());
+				}
 				break;
 			case 5:
+				
+				System.out.println(v.transactionsSummary());
 				break;
 			case 6:
 				running = false;
 				break;
 				
 				
-			}
+			}	
 			
-			
-			
+			System.out.println();
 		}
-		
-		
-		
-		
-		
-		
+	
 	}
 }
