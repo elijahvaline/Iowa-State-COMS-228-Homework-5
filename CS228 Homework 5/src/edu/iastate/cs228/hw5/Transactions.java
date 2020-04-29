@@ -1,43 +1,35 @@
 package edu.iastate.cs228.hw5;
 
-
 import java.io.FileNotFoundException;
-import java.util.Scanner; 
+import java.util.Scanner;
 
 /**
  *  
- * @author
+ * @author Elijah Valine
  *
  */
 
 /**
  * 
- * The Transactions class simulates video transactions at a video store. 
+ * The Transactions class simulates video transactions at a video store.
  *
  */
-public class Transactions 
-{
-	
+public class Transactions {
+
 	/**
-	 * The main method generates a simulation of rental and return activities.  
-	 *  
+	 * The main method generates a simulation of rental and return activities.
+	 * 
 	 * @param args
 	 * @throws FileNotFoundException
 	 */
 	@SuppressWarnings("resource")
-	public static void main(String[] args) throws FileNotFoundException
-	{	
-		// TODO 
-		// 
-		// 1. Construct a VideoStore object.
-		// 2. Simulate transactions as in the example given in Section 4 of the 
-		//    the project description. 
+	public static void main(String[] args) throws FileNotFoundException {
 		
 		int state = 1;
 		int num;
 		boolean running = true;
-		
-		String multi = "";
+
+		String multi;
 		Scanner sc = new Scanner(System.in);
 		VideoStore v = new VideoStore("test1.txt");
 
@@ -45,14 +37,17 @@ public class Transactions
 		System.out.println("keys: 1 (rent)     2 (bulk rent)");
 		System.out.println("      3 (return)   4 (bulk return)");
 		System.out.println("      5 (summary)  6 (exit)" + "\n \n");
-		
-		while(running == true) {
+
+		//This just uses a switch statement, reads the user input for the correct transaction and switches to 
+		//the correct case.  Then it calls the corresponding method and handles the exceptions, printing
+		//the exception message if necessary.
+		while (running == true) {
 			multi = "";
 			System.out.print("Transaction: ");
 			state = sc.nextInt();
-		
-			
-			switch (state){
+
+			switch (state) {
+
 			case 1:
 				System.out.print("Film to rent: ");
 				multi = sc.nextLine();
@@ -61,27 +56,25 @@ public class Transactions
 				multi = VideoStore.parseFilmName(multi);
 
 				try {
-				v.videoRent(multi, num);
-				}
-				catch (Exception e) {
+					v.videoRent(multi, num);
+				} catch (Exception e) {
 					System.out.println(e.getMessage());
 				}
-				
 				break;
-			case 2: 
+
+			case 2:
 				System.out.print("Video file (rent): ");
 				multi = sc.nextLine();
 				multi = sc.nextLine();
 
-				
 				try {
 					v.bulkRent(multi);
-				}
-				catch(Exception e) {
+				} catch (Exception e) {
 					System.out.println(e.getMessage());
 				}
 				break;
-			case 3: 
+
+			case 3:
 				System.out.print("Film to return: ");
 				multi = sc.nextLine();
 				multi = sc.nextLine();
@@ -89,37 +82,34 @@ public class Transactions
 				multi = VideoStore.parseFilmName(multi);
 				try {
 					v.videoReturn(multi, num);
-				}
-				catch(Exception e) {
-					
+				} catch (Exception e) {
+
 					System.out.println(e.getMessage());
 				}
 				break;
+
 			case 4:
-				System.out.println("Video file (return): ");
+				System.out.print("Video file (return): ");
 				multi = sc.nextLine();
 				multi = sc.nextLine();
 
 				try {
 					v.bulkReturn(multi);
-				}
-				catch(Exception e) {
-					 System.out.println(e.getMessage());
+				} catch (Exception e) {
+					System.out.println(e.getMessage());
 				}
 				break;
+
 			case 5:
-				
 				System.out.println(v.transactionsSummary());
 				break;
+
 			case 6:
 				running = false;
 				break;
-				
-				
-			}	
-			
+			}
 			System.out.println();
 		}
-	
+
 	}
 }

@@ -10,7 +10,7 @@ import edu.iastate.cs228.hw5.SplayTree.Node;
 
 /**
  * 
- * @author
+ * @author Elijah Valine
  *
  */
 
@@ -41,9 +41,9 @@ public class VideoStore {
 	 * @throws FileNotFoundException
 	 */
 	public VideoStore(String videoFile) throws FileNotFoundException {
+
 		inventory = new SplayTree<Video>();
 		setUpInventory(videoFile);
-
 	}
 
 	/**
@@ -57,32 +57,25 @@ public class VideoStore {
 	 * @throws FileNotFoundException
 	 */
 	public void setUpInventory(String videoFile) throws FileNotFoundException {
+
+		int copies = 1;
+
 		File f = new File(videoFile);
 		String nextLine;
-		int copies = 1;
 		String title = "";
-		String next;
 		s = new Scanner(f);
 
 		while (s.hasNextLine()) {
 			nextLine = s.nextLine();
-			sc = new Scanner(nextLine);
-			while (sc.hasNext()) {
-				next = sc.next();
-				if (next.length() == 1) {
-					title += next + " ";
-				} else if (isNum(next.charAt(1)) == false) {
+			//Checks if line is empty
+			if (nextLine.trim().length() == 0) {
 
-					title += next + " ";
-				} else if (isNum(next.charAt(1)) == true) {
-					copies = Integer.parseInt(next.substring(1, next.length() - 1) + "");
-				}
+			} else {
+				//Parses title and copies and adds to inventory
+				title = VideoStore.parseFilmName(nextLine);
+				copies = VideoStore.parseNumCopies(nextLine);
+				inventory.addBST(new Video(title, copies));
 			}
-			title = title.substring(0, title.length() - 1);
-			inventory.addBST(new Video(title, copies));
-
-			copies = 1;
-			title = "";
 		}
 	}
 
@@ -94,15 +87,19 @@ public class VideoStore {
 	 * Find a Video object by film title.
 	 * 
 	 * @param film
-	 * @return
+	 * @return The video with the corresponding name.
 	 */
 	@SuppressWarnings({ "unused", "rawtypes" })
 	public Video findVideo(String film) {
+
+		int j;
+
 		String curr, prev;
 		Node cur = inventory.root;
 		curr = ((Video) cur.data).getFilm();
-		int j;
 
+		//Uses the binary search algorithm to search through each node. I realize now i made this way harder
+		//than it had to be.
 		for (int i = 0; i < inventory.size - 1; i++) {
 			j = film.compareTo(curr);
 			if (j < 0) {
@@ -119,7 +116,6 @@ public class VideoStore {
 				curr = ((Video) cur.data).getFilm();
 			} else {
 				return (Video) cur.data;
-
 			}
 		}
 		return (Video) cur.data;
@@ -155,6 +151,7 @@ public class VideoStore {
 	 * @param film title of the film
 	 */
 	public void addVideo(String film) {
+		
 		boolean x = inventory.add(new Video(film));
 
 		if (x == false) {
@@ -172,7 +169,7 @@ public class VideoStore {
 	 * @throws FileNotFoundException
 	 */
 	public void bulkImport(String videoFile) throws FileNotFoundException {
-
+		
 		File f = new File(videoFile);
 		String nextLine;
 		int copies = 1;
@@ -182,7 +179,8 @@ public class VideoStore {
 		ArrayList<Video> vids = new ArrayList<Video>();
 
 		while (s.hasNextLine()) {
-
+			//Goes line by line manually parsing the line and adding it to an arraylist. I made this before
+			//I made the other dedicated parsing methods.
 			nextLine = s.nextLine();
 			sc = new Scanner(nextLine);
 			while (sc.hasNext()) {
@@ -202,7 +200,7 @@ public class VideoStore {
 			copies = 1;
 			title = "";
 		}
-
+		//Using the arraylist adds the videos to the inventory.
 		for (int i = 0; i < vids.size(); i++) {
 			Video curr = vids.get(i);
 			boolean x = inventory.addBST(curr);
@@ -211,10 +209,8 @@ public class VideoStore {
 				Video cur;
 				cur = findVideo(curr.getFilm());
 				cur.addNumCopies(vids.get(i).getNumCopies());
-//				inventory.root.data.addNumCopies(vids.get(i).getNumCopies());
 			}
 		}
-
 	}
 
 	// ----------------------------
@@ -262,13 +258,14 @@ public class VideoStore {
 	 */
 	public void videoRent(String film, int n)
 			throws IllegalArgumentException, FilmNotInInventoryException, AllCopiesRentedOutException {
-
+		//Handles the exceptions and then rents video if it passes inspection.
 		Video curr = inventory.findElement(new Video(film, 1));
+		
 		if (curr == null) {
 			throw new FilmNotInInventoryException("Film " + film + " is not in inventory");
 		}
 		if (film == null || n <= 0 || film.isEmpty()) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Film " + film + " has an invalid request");
 		}
 		if (curr.getNumAvailableCopies() == 0) {
 			throw new AllCopiesRentedOutException("Film " + film + " has been rented out");
@@ -308,16 +305,20 @@ public class VideoStore {
 	public void bulkRent(String videoFile) throws FileNotFoundException, IllegalArgumentException,
 			FilmNotInInventoryException, AllCopiesRentedOutException {
 
+
+		int priority = 10;
+		int copies = 1;
+		
 		String nextLine;
 		String exceptions = "";
 		String title = "";
-		int priority = 10;
-		int copies = 1;
 		Boolean first = true;
-
 		File f = new File(videoFile);
 		s = new Scanner(f);
-
+		
+		//This just parses each line and rents it while catching exceptions.Then it throws the new exceptions
+		//if necessary.
+		
 		while (s.hasNextLine()) {
 
 			nextLine = s.nextLine();
@@ -358,6 +359,7 @@ public class VideoStore {
 				}
 			}
 		}
+		
 		if (exceptions.length() > 0) {
 			switch (priority) {
 			case 1:
@@ -385,9 +387,10 @@ public class VideoStore {
 	 * @throws FilmNotInInventoryException if film is not in the inventory
 	 */
 	public void videoReturn(String film, int n) throws IllegalArgumentException, FilmNotInInventoryException {
-
+		
+		//Same idea as videoRent. Handes exceptions, and if it passes then returns the video.
 		if (n <= 0) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Film " + film + " has an invalid request");
 		}
 		if (inventory.contains(new Video(film, 1)) == false) {
 
@@ -422,6 +425,7 @@ public class VideoStore {
 
 		int copies = 1;
 		int priority = 10;
+		
 		String nextLine;
 		String title = "";
 		String exceptions = "";
@@ -429,6 +433,9 @@ public class VideoStore {
 		File f = new File(videoFile);
 		s = new Scanner(f);
 
+		
+		//Same idea as the last couple methods. Parses the text file, and then returns video while catching
+		//catching exceptions. Then it throw new exceptions if necessary.
 		while (s.hasNextLine()) {
 
 			nextLine = s.nextLine();
@@ -482,12 +489,14 @@ public class VideoStore {
 	 * Godfather (1)
 	 * 
 	 * 
-	 * @return
+	 * @return A string containing all of the movies in the inventory.
 	 */
 	public String inventoryList() {
 
+		//a list of all the movies in the inventory. Just iterates through the whole tree.
 		String returner = "";
 		Iterator<Video> iter = inventory.iterator();
+		
 		while (iter.hasNext()) {
 			returner += iter.next().toString() + "\n";
 
@@ -500,7 +509,7 @@ public class VideoStore {
 	 * string format, see Transaction 5 in the sample simulation in Section 4 of the
 	 * project description.
 	 * 
-	 * @return
+	 * @return A summary of both rented videos and unrented videos.
 	 */
 	public String transactionsSummary() {
 		return rentedVideosList() + unrentedVideosList();
@@ -518,12 +527,16 @@ public class VideoStore {
 	 * (1)
 	 * 
 	 * 
-	 * @return
+	 * @return A string containing all of the rented videos.
 	 */
 	private String rentedVideosList() {
-		String returner = "Rented Films:" + "\n \n \n";
+		
 		Iterator<Video> iter = inventory.iterator();
+		
+		String returner = "Rented Films:" + "\n \n \n";
 		Video curr;
+		
+		//If a video has been rented, adds that information to a string and returns it.
 		while (iter.hasNext()) {
 			curr = iter.next();
 			if (curr.getNumRentedCopies() == 0) {
@@ -532,7 +545,6 @@ public class VideoStore {
 				returner += curr.getFilm() + " " + "(" + curr.getNumRentedCopies() + ")" + "\n";
 			}
 		}
-
 		return returner + "\n \n";
 	}
 
@@ -549,12 +561,17 @@ public class VideoStore {
 	 * (4) Taxi Driver (1)
 	 * 
 	 * 
-	 * @return
+	 * @return A string containing all of the unrented videos.
 	 */
 	private String unrentedVideosList() {
-		String returner = "Films remaining in inventory: " + "\n \n \n";
+		
+		
 		Iterator<Video> iter = inventory.iterator();
+		
+		String returner = "Films remaining in inventory: " + "\n \n \n";
 		Video curr;
+		
+		//Same idea as the last method. If a video is unrented, adds it to a string.
 		while (iter.hasNext()) {
 			curr = iter.next();
 			if (curr.getNumAvailableCopies() == 0) {
@@ -572,13 +589,16 @@ public class VideoStore {
 	 * Parse the film name from an input line.
 	 * 
 	 * @param line
-	 * @return
+	 * @return The title
 	 */
+	@SuppressWarnings("resource")
 	public static String parseFilmName(String line) {
+		
 		String next;
 		String title = "";
-		@SuppressWarnings("resource")
 		Scanner sc = new Scanner(line);
+		
+		//Scans through the line, if it is a number in parents removes it.
 		while (sc.hasNext()) {
 			next = sc.next();
 			if (next.length() == 1) {
@@ -596,14 +616,17 @@ public class VideoStore {
 	 * Parse the number of copies from an input line.
 	 * 
 	 * @param line
-	 * @return
+	 * @return The number of copies.
 	 */
+	@SuppressWarnings("resource")
 	public static int parseNumCopies(String line) {
-		@SuppressWarnings("resource")
+		
+		int copies = 1;
+		
 		Scanner sc = new Scanner(line);
 		String next = "";
-		int copies = 1;
 
+		//Oposite of the last method. Number in parents gets parsed to an int.
 		while (sc.hasNext()) {
 			next = sc.next();
 			if (next.charAt(0) == '(') {
@@ -613,13 +636,20 @@ public class VideoStore {
 		return copies;
 	}
 
+	/**
+	 * Static method used to determine if a character is an integer.
+	 * @param c A character
+	 * @return a boolean whether or not it is an integer.
+	 */
+	@SuppressWarnings("unused")
 	private static boolean isNum(Character c) {
 
+		//This just checks if a character is an integer.
 		if (c == null) {
 			return false;
 		}
 		try {
-			@SuppressWarnings("unused")
+			
 			int i = Integer.parseInt(c + "");
 		} catch (NumberFormatException nfe) {
 			return false;

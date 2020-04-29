@@ -2,7 +2,7 @@ package edu.iastate.cs228.hw5;
 
 /**
  * 
- * @author 
+ * @author Elijah Valine
  *
  */
 
@@ -21,26 +21,33 @@ public class Video implements Comparable<Video>
 	public Video(String film, int n) throws IllegalArgumentException 
 	{
 		if (n <= 0) throw new IllegalArgumentException();
-	
-		
 		this.film  = film;
 		numCopies = n;
 		numRentedCopies = 0;
 	}
 	
-	
+	/**
+	 * A constructor for a video with a default number of copies.
+	 * @param film
+	 */
 	public Video(String film)
 	{
 		this(film, 1); 
 	}
 
-	
+	/**
+	 * 
+	 * @return the name of the film.
+	 */
 	public String getFilm()
 	{
 		return film; 
 	}
 	
-
+	/**
+	 * 
+	 * @return the number of copies of the video.
+	 */
 	public int getNumCopies()
 	{
 		return numCopies; 
@@ -57,13 +64,20 @@ public class Video implements Comparable<Video>
 		if (n <= 0) throw new IllegalArgumentException();
 		this.numCopies+=n; 
 	}
-		
+	
+	/**
+	 * 
+	 * @return The number of unrented copies.
+	 */
 	public int getNumAvailableCopies()
 	{
 		return numCopies - numRentedCopies; 
 	}
 
-
+	/**
+	 * 	
+	 * @return The number of rented copies.
+	 */
 	public int getNumRentedCopies()
 	{
 		return numRentedCopies; 
